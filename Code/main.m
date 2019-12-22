@@ -6,7 +6,7 @@ n_trc = 200;
 % length / number of smaples in each trace
 l_trc = 37000;
 % trace file address+name
-f_trc = '1.bin';
+f_trc = '..\Data\1.bin';
 % how many samples to skip from the start of each trace
 skip_trc = 0;
 % how many samples to skip from the end of each trace
@@ -16,7 +16,7 @@ read_trc = l_trc -skip_trc -skip_end_trc;
 
 % Plain text parameters &
 % hexa plain text input with "n_trc" inputs line, 128bit each (16 hexa couples [byte])
-f_ptxt = 'in.txt';
+f_ptxt = '..\Data\in.txt';
 
 %%
 
