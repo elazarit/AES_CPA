@@ -47,6 +47,8 @@ X = ptxt_to_mat (n_trc, f_ptxt);
 
 
 dec_key = zeros(1,16);
+MAX_corr = zeros(1,16);
+S_MAX_corr = zeros(1,16);
 
 for key = 1:16
 XxorK = zeros(n_trc,256);
@@ -77,7 +79,6 @@ for i = 1:256
         for k = 1:n_trc
             numerator = numerator + (H(k,i) - H_avg)*(P(k,j) - P_avg);
         end
-        denominator = 0;
         denom_H = 0;
         denom_P = 0;
         for k = 1:n_trc
@@ -89,10 +90,12 @@ for i = 1:256
     end
     
 end
-M_raw = max(raw,[],2);
+abs_raw = abs(raw);
+M_raw = max(abs_raw,[],2);
 [MAX_corr(key), dec_key(key)] = max(M_raw,[],1);
+M_raw(dec_key(key))=0;
 dec_key(key) = dec_key(key) -1;
-
+S_MAX_corr(key) = max(M_raw,[],1);
 end
 hex_key = dec2hex(dec_key);
 
