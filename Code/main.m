@@ -4,7 +4,7 @@
 % number of traces
 n_trc = 200;
 % length / number of smaples in each trace
-l_trc = 37000;
+l_trc = 370000;
 % trace file address+name
 f_trc = '..\Data\1.bin';
 % how many samples to skip from the start of each trace
@@ -41,14 +41,18 @@ SBOX=[099 124 119 123 242 107 111 197 048 001 103 043 254 215 171 118 ...
 
 %%
 %load trace's BIN file into a matrix
-P_mat = trace_to_mat (n_trc, l_trc, f_trc, skip_trc, read_trc);
+P = trace_to_mat (n_trc, l_trc, f_trc, skip_trc, read_trc);
 %load hexa plain text file and convert it into a decimal matrix
-X_mat = ptxt_to_mat (n_trc, f_ptxt);
+X = ptxt_to_mat (n_trc, f_ptxt);
 
+
+dec_key = zeros(1,16);
+
+for key = 1:16
 XxorK = zeros(n_trc,256);
 
 for i = 0:255
-    XxorK(:,1+i) = bitxor(X_mat(:,1),i);
+    XxorK(:,1+i) = bitxor(X(:,key),i);
 end
 
 
@@ -57,19 +61,54 @@ B = SBOX(XxorK(:,:)+1);
 
 H = zeros(n_trc,256);
 
-for i = 0:255
-H(:,1+i) = sum(dec2bin(B(:,1+i)).' == '1' );
+for i = 1:256
+H(:,i) = sum(dec2bin(B(:,i)).' == '1' );
 end
 
 
+raw = zeros(256,n_trc);
+H_C_sum = sum(H);
+P_C_sum = sum(P);
+for i = 1:256
+    for j = 1:l_trc
+        H_avg = H_C_sum(i)/n_trc;
+        P_avg = P_C_sum(j)/n_trc;
+        numerator=0;
+        for k = 1:n_trc
+            numerator = numerator + (H(k,i) - H_avg)*(P(k,j) - P_avg);
+        end
+        denominator = 0;
+        denom_H = 0;
+        denom_P = 0;
+        for k = 1:n_trc
+            denom_H = denom_H + (H(k,i) - H_avg)^2;
+            denom_P = denom_P + (P(k,j) - P_avg)^2;
+        end
+        denominator = sqrt((denom_H*denom_P));
+        raw(i,j) = numerator/denominator;
+    end
+    
+end
+M_raw = max(raw,[],2);
+[MAX_corr(key), dec_key(key)] = max(M_raw,[],1);
+dec_key(key) = dec_key(key) -1;
 
-
-
+end
+hex_key = dec2hex(dec_key);
 
 %%
 
+%figure(1)
+%plot(raw')                                           % Without Independent Variable
+%grid
+%xlabel('Load in Kips')
+%ylabel('Percentage')
 
-  
+ tst = [1,2,3 
+       4,5,6 
+       7,8,9];
+
+ ddd = sum(tst);
   
   ttt= SBOX(1);
   
