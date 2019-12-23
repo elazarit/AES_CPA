@@ -20,23 +20,6 @@ f_ptxt = '..\Data\in.txt';
 
 %%
 
-%load trace's BIN file into a matrix
-P_mat = trace_to_mat (n_trc, l_trc, f_trc, skip_trc, read_trc);
-%load hexa plain text file and convert it into a decimal matrix
-X_mat = ptxt_to_mat (n_trc, f_ptxt);
-
-    
-
-
-
-
-
-
-
-
-
-
-%%
 
 SBOX=[099 124 119 123 242 107 111 197 048 001 103 043 254 215 171 118 ...
       202 130 201 125 250 089 071 240 173 212 162 175 156 164 114 192 ...
@@ -54,11 +37,43 @@ SBOX=[099 124 119 123 242 107 111 197 048 001 103 043 254 215 171 118 ...
       112 062 181 102 072 003 246 014 097 053 087 185 134 193 029 158 ...
       225 248 152 017 105 217 142 148 155 030 135 233 206 085 040 223 ...
       140 161 137 013 191 230 066 104 065 153 045 015 176 084 187 022];
+
+
+%%
+%load trace's BIN file into a matrix
+P_mat = trace_to_mat (n_trc, l_trc, f_trc, skip_trc, read_trc);
+%load hexa plain text file and convert it into a decimal matrix
+X_mat = ptxt_to_mat (n_trc, f_ptxt);
+
+XxorK = zeros(n_trc,256);
+
+for i = 0:255
+    XxorK(:,1+i) = bitxor(X_mat(:,1),i);
+end
+
+
+B = SBOX(XxorK(:,:)+1);
+
+
+H = zeros(n_trc,256);
+
+for i = 0:255
+H(:,1+i) = sum(dec2bin(B(:,1+i)).' == '1' );
+end
+
+
+
+
+
+
+%%
+
+
   
   
   ttt= SBOX(1);
   
-  
+YYY = dec2hex(SBOX(:));
       
 text='ABCD';
 a=sscanf(text,'%x',Inf);
