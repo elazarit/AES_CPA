@@ -1,7 +1,6 @@
-function mat = ptxt_to_mat (n_trc, f_ptxt)
-    key_bytes = 16;
+function mat = ptxt_to_mat (n_trc, f_ptxt, AES_bytes)
     %initialize a matrix
-    mat = zeros(n_trc, key_bytes);
+    mat = zeros(n_trc, AES_bytes);
     %open plain txt file
     p_f_ptxt = fopen (f_ptxt, 'r');
     %checks for file availability
