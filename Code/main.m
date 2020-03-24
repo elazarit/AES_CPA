@@ -1,5 +1,5 @@
 %% PARAMATERS %%
-
+tic
 % AES parameters %
 % Sets AES key size between 128, 192, 256;
 AES_size = 128;
@@ -14,9 +14,9 @@ l_trc = 370000;
 % trace file address+name
 f_trc = '..\Data\1.bin';
 % how many samples to skip from the start of each trace
-skip_trc = 0;
+skip_trc = 45000;
 % how many samples to skip from the end of each trace
-skip_end_trc = 0;
+skip_end_trc = 295000;
 % total samples to read from each trace
 read_trc = l_trc -skip_trc -skip_end_trc;
 
@@ -39,6 +39,22 @@ dec_key = zeros(1,AES_bytes);
 MAX_corr = zeros(1,AES_bytes);
 S_MAX_corr = zeros(1,AES_bytes);
 
+dec_key_wds = zeros(1,AES_bytes);
+MAX_corr_wds = zeros(1,AES_bytes);
+S_MAX_corr_wds = zeros(1,AES_bytes);
+
+dec_key_w = zeros(1,AES_bytes);
+MAX_corr_w = zeros(1,AES_bytes);
+S_MAX_corr_w = zeros(1,AES_bytes);
+
+dec_key_d = zeros(1,AES_bytes);
+MAX_corr_d = zeros(1,AES_bytes);
+S_MAX_corr_d = zeros(1,AES_bytes);
+
+dec_key_s = zeros(1,AES_bytes);
+MAX_corr_s = zeros(1,AES_bytes);
+S_MAX_corr_s = zeros(1,AES_bytes);
+%%
 % main loop, run through all the "AES_bytes" key bytes.
 for key = 1:AES_bytes
     % initialize XxorK array 
@@ -50,54 +66,61 @@ for key = 1:AES_bytes
     % pass "XxorK" matrix through S-BOX transformation
     B = SBOX_table(XxorK(:,:)+1);
     
-    % initialize "h" array
+    % initialize "h" arrays
     H = zeros(n_trc,AES_key_opt);
+    H1 = zeros(n_trc,AES_key_opt);
+    H2 = zeros(n_trc,AES_key_opt);
+    
     % Create mat "H" by calculating Hamming weight (by counting num of 1's)
     for i = 1:AES_key_opt
+        %HW
         H(:,i) = sum(dec2bin(B(:,i)).' == '1' );
+        
+        %HD
+        H1(:,i) = sum(dec2bin(bitxor(B(:,i),XxorK(:,i))).' == '1' );
+        
+        %SD
+        bin_sum = sum(dec2bin(bitxor(B(:,i),XxorK(:,i))).' == '1' );
+        bin_to_0 = sum(dec2bin(bitand(bitxor(B(:,i),XxorK(:,i)),XxorK(:,i))).' == '1' );
+        H2(:,i) = bin_to_0*0.5+bin_sum;    
     end
-    
-    % initialize "raw" array
-    raw = zeros(AES_key_opt,n_trc);
-    H_C_sum = sum(H);
-    P_C_sum = sum(P);
-    % calculates the pearson correlation mat "raw" size "AES_key_opt","l_trc"
-    for i = 1:AES_key_opt
-        for j = 1:read_trc
-            % claculate H' and P' for every "i" and "j"
-            H_avg = H_C_sum(i)/n_trc;
-            P_avg = P_C_sum(j)/n_trc;
-            % numerator calculation
-            numerator=0;
-            for k = 1:n_trc
-                numerator = numerator + (H(k,i) - H_avg)*(P(k,j) - P_avg);
-            end
-            % denumerator calculation
-            denom_H = 0;
-            denom_P = 0;
-            for k = 1:n_trc
-               denom_H = denom_H + (H(k,i) - H_avg)^2;
-               denom_P = denom_P + (P(k,j) - P_avg)^2;
-            end
-            denominator = sqrt((denom_H*denom_P));
-            % pearson correlation mat calculation
-            raw(i,j) = numerator/denominator;
-        end    
-    end 
-    % pearson correlation absolute value's mat
-    abs_raw = abs(raw);
-    % gets the maximum correlation of each key
-    M_raw = max(abs_raw,[],2);
-    % saves the guessed key to "dec_key" and its correlation to "MAX_corr"
-    [MAX_corr(key), dec_key(key)] = max(M_raw,[],1);
-    % looks for the second heighest correlation
-    M_raw(dec_key(key))=0;
-    % -1 fix - 1:256 range to 0:255 range of keys
-    dec_key(key) = dec_key(key) -1;
-    S_MAX_corr(key) = max(M_raw,[],1);
+    %%
+    % Calculate "raw" arrays
+    raw = pearson_corr (n_trc, read_trc, AES_key_opt, H, P);
+    raw1 = pearson_corr (n_trc, read_trc, AES_key_opt, H1, P);
+    raw2 = pearson_corr (n_trc, read_trc, AES_key_opt, H2, P);
+    %%    
+    % Pearson correlation mats for  HWHDSD, HW, HD and SD 
+    [M_raw_wds, MAX_corr_wds(key), dec_key_wds(key), S_MAX_corr_wds(key)] = max_corr(raw, raw1, raw2);
+    [M_raw_w, MAX_corr_w(key), dec_key_w(key), S_MAX_corr_w(key)] = max_corr(raw, 1, 1);
+    [M_raw_d, MAX_corr_d(key), dec_key_d(key), S_MAX_corr_d(key)] = max_corr(1, raw1, 1);
+    [M_raw_s, MAX_corr_s(key), dec_key_s(key), S_MAX_corr_s(key)] = max_corr(1, 1, raw2);
+    % Threshold for switching from HWHDSD to the biggest of HW/HD/SD
+    if ((MAX_corr_wds(key)/S_MAX_corr_wds(key))>1.35)
+        dec_key(key) = dec_key_wds(key);
+        MAX_corr(key) = MAX_corr_wds(key);
+        S_MAX_corr(key) = S_MAX_corr_wds(key);
+    else
+        corr_temp = [(MAX_corr_w(key)/S_MAX_corr_w(key)),(MAX_corr_d(key)/S_MAX_corr_d(key)),(MAX_corr_s(key)/S_MAX_corr_s(key))];
+        [CR,i_temp] = max(corr_temp);
+        if (i_temp==1)
+            dec_key(key) = dec_key_w(key);
+            MAX_corr(key) = MAX_corr_w(key);
+            S_MAX_corr(key) = S_MAX_corr_w(key);
+        elseif (i_temp==2)
+            dec_key(key) = dec_key_d(key);
+            MAX_corr(key) = MAX_corr_d(key);
+            S_MAX_corr(key) = S_MAX_corr_d(key);
+        else
+            dec_key(key) = dec_key_s(key);
+            MAX_corr(key) = MAX_corr_s(key);
+            S_MAX_corr(key) = S_MAX_corr_s(key);
+        end
+    end
 end
+%%
 % converts the guessed decimal keys to hexa keys
-hex_key = dec2hex(dec_key);
+hex_key = dec2hex(dec_key_w);
 
 %%
 
@@ -108,5 +131,5 @@ hex_key = dec2hex(dec_key);
 %grid
 %xlabel('Load in Kips')
 %ylabel('Percentage')
-
+toc
 %%

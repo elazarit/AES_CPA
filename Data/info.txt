@@ -1,0 +1,26 @@
+in.txt
+ciphertext.txt
+1.bin
+
+n_trc=200
+l_trc=370000
+skip_trc = 45000;
+skip_end_trc = 295000;
+KEY= 00112233445566778899aabbccddeeff
+
+%%
+
+in2.txt
+ciphertext2.txt
+2.bin
+
+n_trc=150
+l_trc=550000
+skip_trc = 4000
+skip_end_trc = 515000
+KEY= 05deadbeef42006861636b65646b6579
+
+
+
+
+site for checking: http://aes.online-domain-tools.com/
