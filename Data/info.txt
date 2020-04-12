@@ -4,9 +4,13 @@ ciphertext.txt
 
 n_trc=200
 l_trc=370000
-skip_trc = 45000;
-skip_end_trc = 295000;
+skip_trc = 46500;
+skip_end_trc = 298500;
 KEY= 00112233445566778899aabbccddeeff
+
+my_filt = designfilt('lowpassiir', 'PassbandFrequency', 80000000, 'StopbandFrequency', 81000000, 'PassbandRipple', 1, 'StopbandAttenuation', 60, 'SampleRate', 1000000000, 'DesignMethod', 'cheby1');
+P(j,:) = sgolayfilt(P_orig(j,:),3,17);
+
 
 %%
 
@@ -19,6 +23,9 @@ l_trc=550000
 skip_trc = 4000
 skip_end_trc = 515000
 KEY= 05deadbeef42006861636b65646b6579
+
+my_filt = designfilt('lowpassiir', 'PassbandFrequency', 64000000, 'StopbandFrequency', 65000000, 'PassbandRipple', 1, 'StopbandAttenuation', 60, 'SampleRate', 1000000000, 'DesignMethod', 'cheby1');
+P(j,:) = sgolayfilt(P_orig(j,:),3,25);
 
 
 

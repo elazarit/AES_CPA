@@ -1,7 +1,8 @@
+clear variables;
+close all;
 %% PARAMATERS %%
 tic
 % AES parameters %
-% Sets AES key size between 128, 192, 256;
 AES_size = 128;
 AES_bytes = AES_size/8;
 AES_key_opt = 2^8;
@@ -14,9 +15,9 @@ l_trc = 370000;
 % trace file address+name
 f_trc = '..\Data\1.bin';
 % how many samples to skip from the start of each trace
-skip_trc = 45000;
+skip_trc = 46500;
 % how many samples to skip from the end of each trace
-skip_end_trc = 295000;
+skip_end_trc = 298500;
 % total samples to read from each trace
 read_trc = l_trc -skip_trc -skip_end_trc;
 
@@ -26,9 +27,39 @@ f_ptxt = '..\Data\in.txt';
 
 %%
 % load trace's BIN file into a matrix
-P = trace_to_mat (n_trc, l_trc, f_trc, skip_trc, read_trc);
+P_orig = trace_to_mat (n_trc, l_trc, f_trc, skip_trc, read_trc);
 % load hexa plain text file and convert it into a decimal matrix
 X = ptxt_to_mat (n_trc, f_ptxt, AES_bytes);
+
+%%
+
+%LP filter
+%For 1.bin
+my_filt = designfilt('lowpassiir', 'PassbandFrequency', 80000000, 'StopbandFrequency', 81000000, 'PassbandRipple', 1, 'StopbandAttenuation', 60, 'SampleRate', 1000000000, 'DesignMethod', 'cheby1');
+
+%For 2.bin
+%my_filt = designfilt('lowpassiir', 'PassbandFrequency', 64000000, 'StopbandFrequency', 65000000, 'PassbandRipple', 1, 'StopbandAttenuation', 60, 'SampleRate', 1000000000, 'DesignMethod', 'cheby1');
+
+%plot my_filt curve
+%fvtool(my_filt);
+
+P = zeros(n_trc,read_trc);
+for j = 1:n_trc
+    %Savitzky-Golay filtering (polynomial fitting)
+    %For 1.bin
+    P(j,:) = sgolayfilt(P_orig(j,:),3,17);
+    %For 2.bin
+    %P(j,:) = sgolayfilt(P_orig(j,:),3,25);
+
+end
+for j = 1:n_trc
+    P(j,:)= filter(my_filt, P(j,:));
+end
+%Disables filtering
+%P=P_orig;
+
+
+%%
 
 
 % initialize output arrays %
@@ -67,41 +98,41 @@ for key = 1:AES_bytes
     B = SBOX_table(XxorK(:,:)+1);
     
     % initialize "h" arrays
-    H = zeros(n_trc,AES_key_opt);
-    H1 = zeros(n_trc,AES_key_opt);
-    H2 = zeros(n_trc,AES_key_opt);
+    H_w = zeros(n_trc,AES_key_opt);
+    H_d = zeros(n_trc,AES_key_opt);
+    H_s = zeros(n_trc,AES_key_opt);
     
     % Create mat "H" by calculating Hamming weight (by counting num of 1's)
     for i = 1:AES_key_opt
         %HW
-        H(:,i) = sum(dec2bin(B(:,i)).' == '1' );
+        H_w(:,i) = sum(dec2bin(B(:,i)).' == '1' );
         
         %HD
-        H1(:,i) = sum(dec2bin(bitxor(B(:,i),XxorK(:,i))).' == '1' );
+        H_d(:,i) = sum(dec2bin(bitxor(B(:,i),XxorK(:,i))).' == '1' );
         
         %SD
         bin_sum = sum(dec2bin(bitxor(B(:,i),XxorK(:,i))).' == '1' );
         bin_to_0 = sum(dec2bin(bitand(bitxor(B(:,i),XxorK(:,i)),XxorK(:,i))).' == '1' );
-        H2(:,i) = bin_to_0*0.5+bin_sum;    
+        H_s(:,i) = bin_to_0*0.5+bin_sum;    
     end
     %%
     % Calculate "raw" arrays
-    raw = pearson_corr (n_trc, read_trc, AES_key_opt, H, P);
-    raw1 = pearson_corr (n_trc, read_trc, AES_key_opt, H1, P);
-    raw2 = pearson_corr (n_trc, read_trc, AES_key_opt, H2, P);
+    raw_w = pearson_corr (n_trc, read_trc, AES_key_opt, H_w, P);
+    raw_d = pearson_corr (n_trc, read_trc, AES_key_opt, H_d, P);
+    raw_s = pearson_corr (n_trc, read_trc, AES_key_opt, H_s, P);
     %%    
     % Pearson correlation mats for  HWHDSD, HW, HD and SD 
-    [M_raw_wds, MAX_corr_wds(key), dec_key_wds(key), S_MAX_corr_wds(key)] = max_corr(raw, raw1, raw2);
-    [M_raw_w, MAX_corr_w(key), dec_key_w(key), S_MAX_corr_w(key)] = max_corr(raw, 1, 1);
-    [M_raw_d, MAX_corr_d(key), dec_key_d(key), S_MAX_corr_d(key)] = max_corr(1, raw1, 1);
-    [M_raw_s, MAX_corr_s(key), dec_key_s(key), S_MAX_corr_s(key)] = max_corr(1, 1, raw2);
+    [M_raw_wds, MAX_corr_wds(key), dec_key_wds(key), S_MAX_corr_wds(key)] = max_corr(raw_w, raw_d, raw_s);
+    [M_raw_w, MAX_corr_w(key), dec_key_w(key), S_MAX_corr_w(key)] = max_corr(raw_w, 1, 1);
+    [M_raw_d, MAX_corr_d(key), dec_key_d(key), S_MAX_corr_d(key)] = max_corr(1, raw_d, 1);
+    [M_raw_s, MAX_corr_s(key), dec_key_s(key), S_MAX_corr_s(key)] = max_corr(1, 1, raw_s);
     % Threshold for switching from HWHDSD to the biggest of HW/HD/SD
-    if ((MAX_corr_wds(key)/S_MAX_corr_wds(key))>1.35)
+    if ((MAX_corr_wds(key)/S_MAX_corr_wds(key))>1.6)
         dec_key(key) = dec_key_wds(key);
         MAX_corr(key) = MAX_corr_wds(key);
         S_MAX_corr(key) = S_MAX_corr_wds(key);
     else
-        corr_temp = [(MAX_corr_w(key)/S_MAX_corr_w(key)),(MAX_corr_d(key)/S_MAX_corr_d(key)),(MAX_corr_s(key)/S_MAX_corr_s(key))];
+        corr_temp = [(MAX_corr_w(key)/S_MAX_corr_w(key)),(MAX_corr_d(key)/S_MAX_corr_d(key)),(MAX_corr_s(key)/S_MAX_corr_s(key)), (MAX_corr_wds(key)/S_MAX_corr_wds(key))];
         [CR,i_temp] = max(corr_temp);
         if (i_temp==1)
             dec_key(key) = dec_key_w(key);
@@ -111,25 +142,34 @@ for key = 1:AES_bytes
             dec_key(key) = dec_key_d(key);
             MAX_corr(key) = MAX_corr_d(key);
             S_MAX_corr(key) = S_MAX_corr_d(key);
-        else
+        elseif (i_temp==3)
             dec_key(key) = dec_key_s(key);
             MAX_corr(key) = MAX_corr_s(key);
             S_MAX_corr(key) = S_MAX_corr_s(key);
+        else
+            dec_key(key) = dec_key_wds(key);
+            MAX_corr(key) = MAX_corr_wds(key);
+            S_MAX_corr(key) = S_MAX_corr_wds(key);
         end
     end
 end
 %%
 % converts the guessed decimal keys to hexa keys
-hex_key = dec2hex(dec_key_w);
+hex_key = dec2hex(dec_key);
 
 %%
 
-%xlswrtie()
-
-%figure(1)
-%plot(raw')                                           % Without Independent Variable
-%grid
-%xlabel('Load in Kips')
-%ylabel('Percentage')
+xlswrite('Corr.xls',MAX_corr,'A1:P1')
+xlswrite('Corr.xls',S_MAX_corr,'A2:P2')
+xlswrite('Corr.xls',MAX_corr./S_MAX_corr,'A3:P3')
+MAX_corr(key)
+S_MAX_corr(key)
+MAX_corr(key)/S_MAX_corr(key)
+%{
+figure(1);
+plot(raw_w');                                           % Without Independent Variable
+grid;
+xlabel('Load in Kips');
+ylabel('Percentage');
+%}
 toc
-%%
