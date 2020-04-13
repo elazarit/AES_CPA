@@ -30,6 +30,12 @@ f_ptxt = '..\Data\in.txt';
 P_orig = trace_to_mat (n_trc, l_trc, f_trc, skip_trc, read_trc);
 X = P_orig(100,:);
 
+%Claculate Clk freq. for filtering purposes
+c_freq = clk_freq (P_orig, read_trc);
+
+%LP filter, PassBand = 2*c_freq, BlockBand = 2.025*c_freq 
+my_filt = designfilt('lowpassiir', 'PassbandFrequency', 2*c_freq, 'StopbandFrequency', 2.025*c_freq, 'PassbandRipple', 1, 'StopbandAttenuation', 60, 'SampleRate', 1000000000, 'DesignMethod', 'cheby1');
+
 %%
 %Sampling parameters
 Fs = 1000000000;            % Sampling frequency                    
@@ -60,7 +66,7 @@ ylabel('|P1(f)|')
 
 %%
 %Signal filtering
-X = sgolayfilt(X,3,17);
+X = filter(my_filt,X);
 
 %Plotting the filtered signal in the time domain. 
 figure();
