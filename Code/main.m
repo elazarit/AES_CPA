@@ -32,36 +32,23 @@ P_orig = trace_to_mat (n_trc, l_trc, f_trc, skip_trc, read_trc);
 X = ptxt_to_mat (n_trc, f_ptxt, AES_bytes);
 
 %%
+%Claculate Clk freq. for filtering purposes
+c_freq = clk_freq (P_orig, read_trc);
 
-%LP filter
-%For 1.bin
-my_filt = designfilt('lowpassiir', 'PassbandFrequency', 80000000, 'StopbandFrequency', 81000000, 'PassbandRipple', 1, 'StopbandAttenuation', 60, 'SampleRate', 1000000000, 'DesignMethod', 'cheby1');
+%LP filter, PassBand = 2*c_freq, BlockBand = 2.025*c_freq 
+my_filt = designfilt('lowpassiir', 'PassbandFrequency', 2*c_freq, 'StopbandFrequency', 2.025*c_freq, 'PassbandRipple', 1, 'StopbandAttenuation', 60, 'SampleRate', 1000000000, 'DesignMethod', 'cheby1');
 
-%For 2.bin
-%my_filt = designfilt('lowpassiir', 'PassbandFrequency', 64000000, 'StopbandFrequency', 65000000, 'PassbandRipple', 1, 'StopbandAttenuation', 60, 'SampleRate', 1000000000, 'DesignMethod', 'cheby1');
-
-%plot my_filt curve
+%plot filter curve
 %fvtool(my_filt);
 
 P = zeros(n_trc,read_trc);
 for j = 1:n_trc
-    %Savitzky-Golay filtering (polynomial fitting)
-    %For 1.bin
-    P(j,:) = sgolayfilt(P_orig(j,:),3,17);
-    %For 2.bin
-    %P(j,:) = sgolayfilt(P_orig(j,:),3,25);
-
-end
-for j = 1:n_trc
-    P(j,:)= filter(my_filt, P(j,:));
+    P(j,:)= filter(my_filt, P_orig(j,:));
 end
 %Disables filtering
 %P=P_orig;
 
-
 %%
-
-
 % initialize output arrays %
 % dec_key - guessed key in decimal values
 % MAX_corr - max abs' correlation of the guessed key
@@ -85,6 +72,7 @@ S_MAX_corr_d = zeros(1,AES_bytes);
 dec_key_s = zeros(1,AES_bytes);
 MAX_corr_s = zeros(1,AES_bytes);
 S_MAX_corr_s = zeros(1,AES_bytes);
+
 %%
 % main loop, run through all the "AES_bytes" key bytes.
 for key = 1:AES_bytes
@@ -153,12 +141,12 @@ for key = 1:AES_bytes
         end
     end
 end
+
 %%
 % converts the guessed decimal keys to hexa keys
 hex_key = dec2hex(dec_key);
 
 %%
-
 xlswrite('Corr.xls',MAX_corr,'A1:P1')
 xlswrite('Corr.xls',S_MAX_corr,'A2:P2')
 xlswrite('Corr.xls',MAX_corr./S_MAX_corr,'A3:P3')
