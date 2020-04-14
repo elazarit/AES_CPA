@@ -150,6 +150,9 @@ hex_key = dec2hex(dec_key);
 xlswrite('Corr.xls',MAX_corr,'A1:P1')
 xlswrite('Corr.xls',S_MAX_corr,'A2:P2')
 xlswrite('Corr.xls',MAX_corr./S_MAX_corr,'A3:P3')
+xlswrite('Corr.xls',{'=AVERAGE(A3:P3)'},'Sheet1','Q3')
+winopen('Corr.xls');
+ 
 MAX_corr(key)
 S_MAX_corr(key)
 MAX_corr(key)/S_MAX_corr(key)
