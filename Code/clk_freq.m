@@ -30,6 +30,7 @@ function c_freq = clk_freq (P_orig, read_trc)
             clk_frq_arr(j) = top(j)-top(j-1);
         end
     end
+    %Round the clk signal to 3 significant numbers
     clk_frq_arr = round(clk_frq_arr,3,'significant');
     c_freq = mode(clk_frq_arr);
 end
