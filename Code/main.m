@@ -154,7 +154,7 @@ MAX_corr(key)
 S_MAX_corr(key)
 MAX_corr(key)/S_MAX_corr(key)
 %{
-figure(1);
+figure;
 plot(raw_w');                                           % Without Independent Variable
 grid;
 xlabel('Load in Kips');

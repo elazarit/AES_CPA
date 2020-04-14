@@ -62,7 +62,7 @@ f = Fs*(0:(L/2))/L;
 plot(f,20*log10(P1)) 
 title('Single-Sided Amplitude Spectrum of X(t)')
 xlabel('f (Hz)')
-ylabel('|P1(f)|')
+ylabel('|P1(f)|(dB)')
 
 %%
 %Signal filtering
@@ -90,7 +90,7 @@ f = Fs*(0:(L/2))/L;
 plot(f,20*log10(P1)) 
 title('Single-Sided Amplitude Spectrum of filtered X(t)')
 xlabel('f (Hz)')
-ylabel('|P1(f)|')
+ylabel('|P1(f)|(dB)')
 
 
 
