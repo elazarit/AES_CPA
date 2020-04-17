@@ -35,7 +35,7 @@ X = ptxt_to_mat (n_trc, f_ptxt, AES_bytes);
 %Traces desync
 [read_trc,P_shifted,shift_amount_arr] = offset_generator(Pz,n_trc);
 %Traces resync
-[P_align] = traces_alignment(P_shifted,n_trc,shift_amount_arr);
+[P_align,read_trc] = traces_alignment(P_shifted,n_trc,read_trc,shift_amount_arr);
 P_orig = P_align;
 
 %%

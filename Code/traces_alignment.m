@@ -1,4 +1,4 @@
-function [P_align] = traces_alignment(P_shifted,n_trc,shift_amount_arr)
+function [P_align,read_trc] = traces_alignment(P_shifted,n_trc,read_trc,shift_amount_arr)
 %calculate the alignment amount needed via POC method
 %all the traces are aligned according to the first trace
 align =  zeros(1,n_trc);
@@ -18,13 +18,11 @@ error =  zeros(1,n_trc);
 %alignment
 %shift all the trace in one direction according to the max shift
 %swaping beetwen first and max shifted element
-[~,I] = max(shift_amount_arr);
-temp=P_shifted(1,:);
-P_shifted(1,:)=P_shifted(I,:);
-P_shifted(I,:)=temp;
-P_align(1,:)=P_shifted(1,:);
-  for i=2:n_trc
-      shift_amount = shift_diff(i);
-      P_align(i,:)= circshift( P_shifted(i,:),-shift_amount);
+[~,Max_s] = max(align);
+[~,Min_s] = min(align);
+read_trc = read_trc + align(Min_s) - align(Max_s);
+  for i=1:n_trc
+      shifted = circshift( P_shifted(i,:),align(Min_s)-align(i));
+      P_align(i,:) = shifted(1:read_trc);
   end
 end
