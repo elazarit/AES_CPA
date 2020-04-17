@@ -11,6 +11,7 @@ function shift = POCShift(fixed, moving)
 F=fftshift(fft(fixed));
 M=fftshift(fft(moving));
 R=(F.*conj(M))./abs((F.*conj(M)));
+R(isnan(R))=0;
 % 3.IFFT OF R
 r = fftshift(abs(ifft(R)));
 % 3. Estimate the translation:

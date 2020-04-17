@@ -3,7 +3,7 @@ function [P_align] = traces_alignment(P_shifted,n_trc,shift_amount_arr)
 %all the traces are aligned according to the first trace
 align =  zeros(1,n_trc);
  for i=2:n_trc
-     align(i) = round(POCShift(P_shifted(1,:),P_shifted(i,:))); 
+     align(i) = round(POCShift(P_shifted(1,:),P_shifted(i,:)));
  end
 %calaculate the shift difference between first trace and other traces
 %creating an error vector in order to check that the algorithm is indeed
@@ -14,7 +14,7 @@ error =  zeros(1,n_trc);
      shift_diff(i) = shift_amount_arr(1)-shift_amount_arr(i);
      error(i) = shift_diff(i) - align(i);
  end
- histogram(error,'Normalization')
+ histogram(error)
 %alignment
 %shift all the trace in one direction according to the max shift
 %swaping beetwen first and max shifted element

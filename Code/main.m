@@ -27,9 +27,16 @@ f_ptxt = '..\Data\in.txt';
 
 %%
 % load trace's BIN file into a matrix
-P_orig = trace_to_mat (n_trc, l_trc, f_trc, skip_trc, read_trc);
+Pz = trace_to_mat (n_trc, l_trc, f_trc, skip_trc, read_trc);
 % load hexa plain text file and convert it into a decimal matrix
 X = ptxt_to_mat (n_trc, f_ptxt, AES_bytes);
+
+%%
+%Traces desync
+[read_trc,P_shifted,shift_amount_arr] = offset_generator(Pz,n_trc);
+%Traces resync
+[P_align] = traces_alignment(P_shifted,n_trc,shift_amount_arr);
+P_orig = P_align;
 
 %%
 %Claculate Clk freq. for filtering purposes
