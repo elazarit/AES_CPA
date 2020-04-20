@@ -1,4 +1,3 @@
-
 function raw = pearson_corr (n_trc, read_trc, AES_key_opt, H, P)
     % initialize "raw" array
     raw = zeros(AES_key_opt,read_trc);
