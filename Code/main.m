@@ -82,7 +82,7 @@ S_MAX_corr_s = zeros(1,AES_bytes);
 
 %%
 % main loop, run through all the "AES_bytes" key bytes.
-for key = 1:AES_bytes
+for key = 1:1
     % initialize XxorK array 
     XxorK = zeros(n_trc,AES_key_opt);
     % bitxor-ing the "key" column of X with all the "AES_key_opt" options
@@ -150,24 +150,15 @@ for key = 1:AES_bytes
 end
 
 %%
-% converts the guessed decimal keys to hexa keys
+% Converts the guessed decimal keys to hexa keys
 hex_key = dec2hex(dec_key);
 
 %%
+% CR output to excel file
 xlswrite('Corr.xls',MAX_corr,'A1:P1')
 xlswrite('Corr.xls',S_MAX_corr,'A2:P2')
 xlswrite('Corr.xls',MAX_corr./S_MAX_corr,'A3:P3')
 xlswrite('Corr.xls',{'=AVERAGE(A3:P3)'},'Sheet1','Q3')
 winopen('Corr.xls');
  
-MAX_corr(key)
-S_MAX_corr(key)
-MAX_corr(key)/S_MAX_corr(key)
-%{
-figure;
-plot(raw_w');                                           % Without Independent Variable
-grid;
-xlabel('Load in Kips');
-ylabel('Percentage');
-%}
 toc
