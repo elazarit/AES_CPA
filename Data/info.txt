@@ -1,33 +1,25 @@
-in.txt
-ciphertext.txt
-1.bin
+%%%%Traces SET 1%%%%
+Load Traces: 1.bin
+Load Plain input: in.txt
+Encrypted output: ciphertext.txt
 
-n_trc=200
-l_trc=370000
+n_trc = 200
+l_trc = 370000
 skip_trc = 46500;
 skip_end_trc = 298500;
-KEY= 00112233445566778899aabbccddeeff
-
-my_filt = designfilt('lowpassiir', 'PassbandFrequency', 80000000, 'StopbandFrequency', 81000000, 'PassbandRipple', 1, 'StopbandAttenuation', 60, 'SampleRate', 1000000000, 'DesignMethod', 'cheby1');
-P(j,:) = sgolayfilt(P_orig(j,:),3,17);
+KEY = 00112233445566778899aabbccddeeff
 
 
-%%
+%%%%Traces SET 2%%%%
+Load Traces: 2.bin
+Load Plain input: in2.txt
+Encrypted output: ciphertext2.txt
 
-in2.txt
-ciphertext2.txt
-2.bin
-
-n_trc=150
-l_trc=550000
+n_trc = 150
+l_trc = 550000
 skip_trc = 4000
 skip_end_trc = 515000
-KEY= 05deadbeef42006861636b65646b6579
+KEY = 05deadbeef42006861636b65646b6579
 
-my_filt = designfilt('lowpassiir', 'PassbandFrequency', 64000000, 'StopbandFrequency', 65000000, 'PassbandRipple', 1, 'StopbandAttenuation', 60, 'SampleRate', 1000000000, 'DesignMethod', 'cheby1');
-P(j,:) = sgolayfilt(P_orig(j,:),3,25);
-
-
-
-
-site for checking: http://aes.online-domain-tools.com/
+%%%%Others:%%%%
+Site for key verification: http://aes.online-domain-tools.com/

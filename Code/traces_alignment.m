@@ -14,7 +14,12 @@ function [P_align,read_trc] = traces_alignment(P_shifted,n_trc,read_trc,shift_am
         shift_diff(i) = shift_amount_arr(1)-shift_amount_arr(i);
         error(i) = shift_diff(i) - align(i);
     end
+    %Plots errors histogram
     histogram(error)
+    title('Histogram of alignment error');
+    xlabel('Deviation [n]');
+    ylabel('Traces [n]');
+    drawnow;
     %alignment
     %shift all the trace in one direction according to the max shift deviation
     [~,Max_s] = max(align);

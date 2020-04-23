@@ -1,30 +1,48 @@
-clear variables;
+function main(gui_hand,f_trc, f_ptxt, n_trc, l_trc, skip_trc, skip_end_trc, desync_EN)
+%clear variables;
 close all;
 %% PARAMATERS %%
 tic
+%GUI globals
+global ph;
+global th;
 % AES parameters %
 AES_size = 128;
 AES_bytes = AES_size/8;
 AES_key_opt = 2^8;
-
+%tarces desync and resync enable (1 - ON , 0 = OFF)
+if (exist('desync_EN','var') ~= 1)
+    desync_EN = 1;
+end
 % Traces parameters &
 % number of traces
-n_trc = 200;
+if (exist('n_trc','var') ~= 1)
+    n_trc = 200;
+end
 % length / number of smaples in each trace
-l_trc = 370000;
+if (exist('l_trc','var') ~= 1)
+    l_trc = 370000;
+end
 % trace file address+name
-f_trc = '..\Data\1.bin';
+if (exist('f_trc','var') ~= 1)
+    f_trc = '..\Data\1.bin';
+end
 % how many samples to skip from the start of each trace
-skip_trc = 46500;
+if (exist('skip_trc','var') ~= 1)
+    skip_trc = 46500;
+end
 % how many samples to skip from the end of each trace
-skip_end_trc = 298500;
+if (exist('skip_end_trc','var') ~= 1)
+    skip_end_trc = 298500;
+end
 % total samples to read from each trace
 read_trc = l_trc -skip_trc -skip_end_trc;
 
 % Plain text parameters &
 % hexa plain text input with "n_trc" inputs line, "AES_size" bits each ("AES_bytes" hexa couples [byte])
-f_ptxt = '..\Data\in.txt';
-
+if (exist('f_ptxt','var') ~= 1)
+    f_ptxt = '..\Data\in.txt';
+end
 %%
 % load trace's BIN file into a matrix
 Pz = trace_to_mat (n_trc, l_trc, f_trc, skip_trc, read_trc);
@@ -32,11 +50,15 @@ Pz = trace_to_mat (n_trc, l_trc, f_trc, skip_trc, read_trc);
 X = ptxt_to_mat (n_trc, f_ptxt, AES_bytes);
 
 %%
-%Traces desync
-[read_trc,P_shifted,shift_amount_arr] = offset_generator(Pz,n_trc);
-%Traces resync
-[P_align,read_trc] = traces_alignment(P_shifted,n_trc,read_trc,shift_amount_arr);
-P_orig = P_align;
+if (desync_EN == 1)
+    %Traces desync
+    [read_trc,P_shifted,shift_amount_arr] = offset_generator(Pz,n_trc);
+    %Traces resync
+    [P_align,read_trc] = traces_alignment(P_shifted,n_trc,read_trc,shift_amount_arr);
+    P_orig = P_align;
+else
+    P_orig = Pz;
+end
 
 %%
 %Claculate Clk freq. for filtering purposes
@@ -81,8 +103,10 @@ MAX_corr_s = zeros(1,AES_bytes);
 S_MAX_corr_s = zeros(1,AES_bytes);
 
 %%
+% Initialize hex key array
+hex_key = char(ones(AES_bytes,1) * '##');
 % main loop, run through all the "AES_bytes" key bytes.
-for key = 1:1
+for key = 1:AES_bytes
     % initialize XxorK array 
     XxorK = zeros(n_trc,AES_key_opt);
     % bitxor-ing the "key" column of X with all the "AES_key_opt" options
@@ -146,19 +170,34 @@ for key = 1:1
             MAX_corr(key) = MAX_corr_wds(key);
             S_MAX_corr(key) = S_MAX_corr_wds(key);
         end
+        
     end
+    % Converts the guessed decimal keys to hexa keys
+    hex_key(key,:) = dec2hex(dec_key(key),2);
+    
+    if (exist('gui_hand','var') == 1)
+        % update hypothesis and CR
+        set(gui_hand.(sprintf('key%d',key)),'Value',hex_key(key,:));
+        set(gui_hand.(sprintf('CR%d',key)),'Value',MAX_corr(key)/S_MAX_corr(key));   
+        % update patch size and percentage text
+        ph.XData = [0 key/AES_bytes key/AES_bytes 0]; 
+        th.String = sprintf('%.0f%%',round(key/AES_bytes*100)); 
+        %update graphics
+        drawnow
+    end
+    
+    
+ 
 end
 
 %%
-% Converts the guessed decimal keys to hexa keys
-hex_key = dec2hex(dec_key);
-
-%%
 % CR output to excel file
+%{
 xlswrite('Corr.xls',MAX_corr,'A1:P1')
 xlswrite('Corr.xls',S_MAX_corr,'A2:P2')
 xlswrite('Corr.xls',MAX_corr./S_MAX_corr,'A3:P3')
 xlswrite('Corr.xls',{'=AVERAGE(A3:P3)'},'Sheet1','Q3')
 winopen('Corr.xls');
- 
+%} 
 toc
+end
