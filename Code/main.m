@@ -6,6 +6,7 @@ function main(gui_hand,f_trc, f_ptxt, n_trc, l_trc, skip_trc, skip_end_trc, desy
     %GUI globals
     global ph;
     global th;
+    global elapsedTime;
     % AES parameters %
     AES_size = 128;
     AES_bytes = AES_size/8;
@@ -196,5 +197,5 @@ function main(gui_hand,f_trc, f_ptxt, n_trc, l_trc, skip_trc, skip_end_trc, desy
     xlswrite('Corr.xls',{'=AVERAGE(A3:P3)'},'Sheet1','Q3')
     winopen('Corr.xls');
     %} 
-    toc
+    elapsedTime = toc;
 end
