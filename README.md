@@ -7,7 +7,7 @@ This code was written as part of the graduation project for Electrical engineeri
 at Afeka Tel Aviv Academic College of Engineering, May, 2020.
 
 Written by:
-[Tamir Elazari](https://github.com/elazarit)
+[Tamir Elazari](https://github.com/elazarit) , 
 [Steven Chich](https://github.com/Steven-024z)
 
 
