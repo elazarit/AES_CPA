@@ -17,7 +17,7 @@ the secret key.
 
 1 - [Our algorithm](#Our-algorithm)  
 2 - [How to use?](#How-to-use-?)     
-3 - [TBC](#TBC)  
+3 - [TBCt](#TBC)  
 
 
 ## Our algorithm
