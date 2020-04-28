@@ -7,7 +7,7 @@ This code was written as part of the graduation project for Electrical engineeri
 at Afeka Tel Aviv Academic College of Engineering, May, 2020.
 
 Written by:
-[Tamir Elazari](https://github.com/elazarit)
+[Tamir Elazari](https://github.com/elazarit) , 
 [Steven Chich](https://github.com/Steven-024z)
 
 
@@ -16,7 +16,7 @@ This code purpose is to perform SCA CPA on AES-128 encryption in order the disco
 the secret key.
 
 1 - [Our algorithm](#Our-algorithm)  
-2 - [How to use?](#How-to-use?)     
+2 - [How to use?](#How-to-use)     
 3 - [TBC](#TBC)  
 
 
