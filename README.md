@@ -47,12 +47,12 @@ to enable this function change to desync_EN == '1', or enable it form the GUI.
 
 ## How to use?
 
-To run the algorithm without the GUI, just run 'main.m'. be sure the predefine all the
+To run the algorithm without the GUI, just run 'main.m'. be sure to predefine all the
 parameters manually before running the code. all the needed parameters for the traces
 are included inside 'info.txt', inside the 'Data' directory.
 
 To run the algorithm easily with the GUI assist, just run 'run_gui.m', and define the
-parameters according to the 'Parameters' meun.
+parameters according to the 'Parameters' menu.
 
 ![Image of GUI](https://github.com/elazarit/AES_CPA/blob/master/Data/GUI.png)
 
