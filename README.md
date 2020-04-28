@@ -33,6 +33,7 @@ with all the possible key byte options and then pass it
 through the SBOX)
 - calculate the correlation factor by Hamming Weight, HW, Hamming Distance, HD,
 Switching Distance, SD, and our combined power model, HWHDSD.
+
 -takes the key with the highest correlation from the HWHDSD, unless the CR (the ratio
 between highest correlation and second highest one) is lower then 1.6.
 -moves into the next key byte.
