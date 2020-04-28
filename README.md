@@ -16,7 +16,7 @@ This code purpose is to perform SCA CPA on AES-128 encryption in order the disco
 the secret key.
 
 1 - [Our algorithm](#Our-algorithm)  
-2 - [How to use?](#How-to-use?)     
+2 - [How to use?](#How-to-use-?)     
 3 - [TBC](#TBC)  
 
 
