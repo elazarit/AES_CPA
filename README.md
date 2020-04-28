@@ -57,6 +57,8 @@ are included inside 'info.txt', inside the 'Data' directory.
 To run the algorithm easily with the GUI assist, just run 'run_gui.m', and define the
 parameters according to the 'Parameters' meun.
 
+![Image of GUI](https://github.com/elazarit/AES_CPA/blob/master/Data/GUI.png)
+
 ### Parameters:
 - Number of Traces: defines the number of traces to load from the *.bin file
 - Traces length: defines the number of points inside easch trace
