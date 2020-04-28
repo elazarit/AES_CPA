@@ -1,6 +1,3 @@
-final project, Side channel attack of AES with CPA
-
-
 # AES SCA, Side Channel Attack, CPA, Correlation Power Analysis
 
 This code was written as part of the graduation project for Electrical engineering
@@ -68,7 +65,7 @@ reading them into a matrix. usefull to save processing time
 them into a matrix. usefull to save processing time
 - desync_EN: enable desync and resync function. 
 
-
+![Image of Parameters](https://github.com/elazarit/AES_CPA/blob/master/Data/Parameters.png)
 
 # TBC
 To be continued... under work.
