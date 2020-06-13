@@ -14,7 +14,6 @@ the secret key.
 
 1 - [Our algorithm](#Our-algorithm)  
 2 - [How to use?](#How-to-use)     
-3 - [TBC](#TBC)  
 
 
 ## Our algorithm
@@ -66,7 +65,4 @@ them into a matrix. usefull to save processing time
 - desync_EN: enable desync and resync function. 
 
 ![Image of Parameters](https://github.com/elazarit/AES_CPA/blob/master/Data/Parameters.png)
-
-# TBC
-To be continued... under work.
 
